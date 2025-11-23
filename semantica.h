@@ -14,6 +14,6 @@ extern int qtSimbolos;
 // Funções públicas
 void adicionarSimbolo(const char* nome, const char* tipo);
 const char* obterTipo(const char* nome);
-void erroSemantico(const char* msg);
+void erroSemantico(const char* msg, ...);
 
 #endif

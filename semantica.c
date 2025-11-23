@@ -1,6 +1,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #include "semantica.h"
 
 Simbolo tabela[1000];
@@ -9,7 +10,9 @@ int qtSimbolos = 0;
 void adicionarSimbolo(const char* nome, const char* tipo) { 
     for (int i = 0; i < qtSimbolos; i++) {
         if (strcmp(tabela[i].nome, nome) == 0) {
-            erroSemantico("Variável já declarada anteriormente.");
+            char buf[256];
+            snprintf(buf, sizeof(buf), "Variável '%s' já declarada anteriormente.", nome);
+            erroSemantico(buf);
         }
     }
 
@@ -26,7 +29,14 @@ const char* obterTipo(const char* nome) {
     return NULL;
 } 
 
-void erroSemantico(const char* msg) {
-    printf("Erro semântico: %s\n", msg);
+void erroSemantico(const char* msg, ...) {
+    va_list args;
+    va_start(args, msg);
+    
+    printf("Erro semântico: ");
+    vprintf(msg, args);
+    printf("\n");
+    
+    va_end(args);
     exit(1);
 }

@@ -37,6 +37,7 @@ int current_column = 1;
 "end"               { UPDATE_YYLLOC(); return KEY_END; }
 "if"                { UPDATE_YYLLOC(); return KEY_IF; }
 "else"              { UPDATE_YYLLOC(); return KEY_ELSE; }
+"then"              { UPDATE_YYLLOC(); return KEY_THEN; }
 "while"             { UPDATE_YYLLOC(); return KEY_WHILE; }
 "for"               { UPDATE_YYLLOC(); return KEY_FOR; }
 "step_by"           { UPDATE_YYLLOC(); return FUNC_STEP_BY; }

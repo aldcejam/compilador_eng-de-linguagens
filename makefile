@@ -1,7 +1,10 @@
 # Compilador
 
-compiler: lex.yy.c y.tab.c
-	gcc lex.yy.c y.tab.c -o compiler
+compiler: lex.yy.c y.tab.c semantica.o
+	gcc lex.yy.c y.tab.c semantica.o -o compiler
+
+semantica.o: semantica.c semantica.h
+	gcc -c semantica.c -o semantica.o
 
 # Gerar o analisador léxico (scanner)
 lex.yy.c: analisador.l
@@ -13,4 +16,4 @@ y.tab.c: parser.y
 
 # Limpeza
 clean:
-	rm -rf lex.yy.c y.tab.* compiler output.txt y.output
+	rm -rf lex.yy.c y.tab.* compiler output.txt y.output semantica.o
