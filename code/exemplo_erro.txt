@@ -1,0 +1,7 @@
+begin
+    x: int;
+    if x > 5  // Erro: Falta 'do'
+    begin
+        output(x);
+    end
+end

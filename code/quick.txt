@@ -1,0 +1,81 @@
+// Implementação do QuickSort usando o esquema de partição de Lomuto.
+// A sintaxe é baseada no Manual de Especificação e no exemplo MergeSort (code.txt).
+
+// Função auxiliar para trocar dois elementos no array.
+// Esta função é necessária para o particionamento.
+function Swap(lista: int[], idx1: int, idx2: int): void
+begin
+	temp: int := lista[idx1];
+	lista[idx1] := lista[idx2];
+	lista[idx2] := temp;
+end
+
+// Função de Particionamento
+// Retorna o índice do pivô após colocá-lo na posição correta.
+function Partition(lista: int[], low: int, high: int): int
+begin
+	// Define o último elemento como pivô
+	pivot: int := lista[high];
+	
+	// 'i' é o índice do último elemento menor que o pivô
+	i: int := low - 1;
+	j: int := low;
+
+	while j < high do
+	begin
+		// Usa 'if...do' conforme o exemplo 'code.txt'
+		if lista[j] <= pivot do
+		begin
+			// A linguagem não permite 'i++' (Resolução C4)
+			// Usamos a atribuição explícita 'i := i + 1'
+			i := i + 1;
+			Swap(lista, i, j);
+		end
+		
+		j := j + 1;
+	end
+
+	// Coloca o pivô na posição correta
+	Swap(lista, i + 1, high);
+	
+	// Retorna a posição do pivô
+	return i + 1;
+end
+
+// Função principal do QuickSort
+function QuickSort (lista : int[], low: int, high: int):void
+begin
+	// Condição de recursão: continua apenas se 'low' for menor que 'high'
+	if low < high do
+	begin
+		// 'pi' é o índice de particionamento
+		pi:int := Partition(lista, low, high);
+
+		// Ordena recursivamente os elementos antes e depois do pivô
+		QuickSort(lista, low, pi - 1);
+		QuickSort(lista, pi + 1, high);
+	end
+	else
+	begin
+		// Condição de parada (como no MergeSort 'code.txt')
+		return;
+	end
+end
+
+// Bloco de execução principal (como em 'code.txt')
+begin 
+	
+	// Inicializa o array para teste
+	array:int[5] := [40, 23, 20, 90, 12];
+	
+	// Define o tamanho. O uso de 'size()' foi simplificado
+	// para focar na sintaxe do algoritmo.
+	tamanho:int := 5;
+
+	// Chama o QuickSort no array completo
+	QuickSort(array, 0, tamanho - 1);
+
+	// O analisador léxico processará este código.
+	// A impressão do resultado dependeria de 'output()', 
+	// mas não é necessária para testar a sintaxe do algoritmo.
+end

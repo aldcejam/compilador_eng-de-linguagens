@@ -1,0 +1,72 @@
+function Merge (lista : int[], left: int, right:int, mid:int) : void
+begin
+	n1 : int := mid -  left + 1;
+	n2 : int := right - mid;
+	l1 : int[n1];
+	l2 : int[n2];
+	i:int := 0;
+	j : int := 0;
+	while i < n1 do
+	begin
+		l1 := lista[left+1];
+		i := i+1;
+	end
+	
+	while j < n2 do
+	begin
+		l2 := lista[mid+1+j];
+		j := j+1;
+	end
+	
+	i := 0;
+	j := 0;
+	k:int := left;
+	while i < n1 and  j < n2 do
+	begin
+		if l1[i] <= l2[j] do
+		begin
+			lista[k] := l1[i];
+			i := i+1;
+		end
+		else
+		begin
+			lista[k] := l2[j];
+			j := j+1;
+		end
+		k := k+1;
+	end
+
+	while i < n1 do
+	begin
+		lista[k] := l1[i];
+		i := i+1;
+		k := k+1;
+	end
+
+	while j < n2 do
+	begin
+		lista[k] := l2[j];
+		j := j+1;
+		k := k+1;
+	end
+
+end
+	
+function MergeSort (lista : int[], left: int, right: int) : void
+begin
+	if left >= right do
+	begin
+		return;
+	end
+	mid:int := left + (right-left) / 2;
+	MergeSort(lista, left, mid);
+	MergeSort(lista, mid+1, right);
+	Merge(lista, left, mid, right);
+end
+
+begin 
+	
+	array:int[5] := [40, 23, 20, 90, 12];
+	tamanho:int := size(array)/size(int);
+	MergeSort(array, 0, tamanho-1);
+end

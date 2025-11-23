@@ -1,142 +1,144 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
-#define T_INT 10
-#define T_REAL 11
-#define T_DEC 12
-#define T_STRING 13
-#define T_BOOL 14
-#define T_NULL 15
-#define ID 16
-#define OP_ASSIGN 17
+#include <string.h>
+#include "y.tab.h"
+
+/* Variáveis globais para rastrear linha atual */
+char current_line[1024];
+int current_pos = 0;
+
+/* Variáveis para controle de posição */
+extern YYLTYPE yylloc;
+int current_column = 1;
+
+/* Macro para atualizar posição */
+#define UPDATE_YYLLOC() \
+    do { \
+        yylloc.first_line = yylineno; \
+        yylloc.first_column = current_column; \
+        yylloc.last_line = yylineno; \
+        yylloc.last_column = current_column + yyleng - 1; \
+        current_column += yyleng; \
+        /* copia token para current_line, se couber */ \
+        for (int i = 0; i < yyleng && current_pos < sizeof(current_line) - 1; i++) { \
+            current_line[current_pos++] = yytext[i]; \
+        } \
+        current_line[current_pos] = '\0'; \
+    } while (0)
 
 %}
 
-DECIMAL_SUFIX [dD]
-INTEGER_LITERAL [0-9]+
-REAL_LITERAL [0-9]+\.[0-9]*([eE][+-]?[0-9]+)?
-STRING_LITERAL \"([^"\n\\]|\\.)*\"
-CHAR_LITERAL '([^'\n\\]|\\.)'
-IDENTIFIER [a-zA-Z][a-zA-Z0-9_]*
-TUBULACOES        [ \t]+
-QUEBRA_LINHAS     (\r\n|\r|\n)
-COMENTARIO_LINHA  "//".*
+%option noyywrap yylineno
 
 %%
 
-{TUBULACOES}                         ;
-{QUEBRA_LINHAS}                      ;
-({TUBULACOES}|{QUEBRA_LINHAS})+{COMENTARIO_LINHA}
+"begin"             { UPDATE_YYLLOC(); return KEY_BEGIN; }
+"end"               { UPDATE_YYLLOC(); return KEY_END; }
+"if"                { UPDATE_YYLLOC(); return KEY_IF; }
+"else"              { UPDATE_YYLLOC(); return KEY_ELSE; }
+"while"             { UPDATE_YYLLOC(); return KEY_WHILE; }
+"for"               { UPDATE_YYLLOC(); return KEY_FOR; }
+"step_by"           { UPDATE_YYLLOC(); return FUNC_STEP_BY; }
+"do"                { UPDATE_YYLLOC(); return KEY_DO; }
+"in"                { UPDATE_YYLLOC(); return KEY_IN; }
+"const"             { UPDATE_YYLLOC(); return KEY_CONST; }
+"function"          { UPDATE_YYLLOC(); return KEY_FUNCTION; }
+"return"            { UPDATE_YYLLOC(); return KEY_RETURN; }
+"true"              { UPDATE_YYLLOC(); return KEY_TRUE; }
+"false"             { UPDATE_YYLLOC(); return KEY_FALSE; }
+"input"             { UPDATE_YYLLOC(); return FUNC_INPUT; }
+"output"            { UPDATE_YYLLOC(); return FUNC_OUTPUT; }
+"outputln"          { UPDATE_YYLLOC(); return FUNC_OUTPUTLN; }
+"and"               { UPDATE_YYLLOC(); return OP_AND; }
+"or"                { UPDATE_YYLLOC(); return OP_OR; }
+"not"               { UPDATE_YYLLOC(); return OP_NOT; }
+"raise"             { UPDATE_YYLLOC(); return KEY_RAISE; }
+"try"               { UPDATE_YYLLOC(); return KEY_TRY; }
+"except"            { UPDATE_YYLLOC(); return KEY_EXCEPT; }
+"finally"           { UPDATE_YYLLOC(); return KEY_FINALLY; }
+"exception"         { UPDATE_YYLLOC(); return KEY_EXCEPTION; }
+"break"             { UPDATE_YYLLOC(); return KEY_BREAK; }
+"continue"          { UPDATE_YYLLOC(); return KEY_CONTINUE; }
+"exit"              { UPDATE_YYLLOC(); return KEY_EXIT; }
+"type"              { UPDATE_YYLLOC(); return KEY_TYPE; }
+"record"            { UPDATE_YYLLOC(); return KEY_RECORD; }
+"allocate"          { UPDATE_YYLLOC(); return FUNC_ALLOCATE; }
+"free"              { UPDATE_YYLLOC(); return FUNC_FREE; }
+"size"              { UPDATE_YYLLOC(); return FUNC_SIZE; }
+"read"              { UPDATE_YYLLOC(); return FUNC_READ; }
+"write"             { UPDATE_YYLLOC(); return FUNC_WRITE; }
+"append"            { UPDATE_YYLLOC(); return FUNC_APPEND; }
+"close"             { UPDATE_YYLLOC(); return FUNC_CLOSE; }
 
-    
-"begin"             { printf("KEY_BEGIN\n"); }
-"end"               { printf("KEY_END\n"); }
-"if"                { printf("KEY_IF\n"); }
-"then"              { printf("KEY_THEN\n"); }
-"else"              { printf("KEY_ELSE\n"); }
-"while"             { printf("KEY_WHILE\n"); }
-"for"               { printf("KEY_FOR\n"); }
-"do"                { printf("KEY_DO\n"); }
-"in"                { printf("KEY_IN\n"); }
-"var"               { printf("KEY_VAR\n"); }
-"const"             { printf("KEY_CONST\n"); }
-"function"          { printf("KEY_FUNCTION\n"); }
-"return"            { printf("KEY_RETURN\n"); }
-"true"              { printf("KEY_TRUE\n"); }
-"false"             { printf("KEY_FALSE\n"); }
-"input"             { printf("KEY_INPUT\n"); }
-"output"            { printf("KEY_OUTPUT\n"); }
-"and"               { printf("OP_AND\n"); }
-"or"                { printf("OP_OR\n"); }
-"not"               { printf("OP_NOT\n"); }
-"raise"             { printf("KEY_RAISE\n"); }
-"try"               { printf("KEY_TRY\n"); }
-"except"            { printf("KEY_EXCEPT\n"); }
-"finally"           { printf("KEY_FINALLY\n"); }
-"exception"         { printf("KEY_EXCEPTION\n"); }
-"break"             { printf("KEY_BREAK\n"); }
-"continue"          { printf("KEY_CONTINUE\n"); }
-"exit"              { printf("KEY_EXIT\n"); }
-"type"              { printf("KEY_TYPE\n"); }
-"record"            { printf("KEY_RECORD\n"); }
-"alocate"           { printf("KEY_ALOCATE\n"); }
-"free"              { printf("KEY_FREE\n"); }
-"size"              { printf("KEY_SIZE\n"); }
-"assign"            { printf("KEY_ASSIGN\n"); }
-"read"              { printf("KEY_READ\n"); }
-"write"             { printf("KEY_WRITE\n"); }
-"append"            { printf("KEY_APPEND\n"); }
-"close"             { printf("KEY_CLOSE\n"); }
+"int"               { UPDATE_YYLLOC(); return TYPE_INTEGER; }
+"real"              { UPDATE_YYLLOC(); return TYPE_REAL; }
+"decimal"           { UPDATE_YYLLOC(); return TYPE_DECIMAL; }
+"boolean"           { UPDATE_YYLLOC(); return TYPE_BOOLEAN; }
+"char"              { UPDATE_YYLLOC(); return TYPE_CHAR; }
+"string"            { UPDATE_YYLLOC(); return TYPE_STRING; }
+"date"              { UPDATE_YYLLOC(); return TYPE_DATE; }
+"time"              { UPDATE_YYLLOC(); return TYPE_TIME; }
+"void"              { UPDATE_YYLLOC(); return TYPE_VOID; }
+"dict"              { UPDATE_YYLLOC(); return TYPE_DICT; }
+"set"               { UPDATE_YYLLOC(); return TYPE_SET; }
 
+":="                { UPDATE_YYLLOC(); return OP_ASSIGN; }
+"+="                { UPDATE_YYLLOC(); return OP_PLUS_ASSIGN; }
+"-="                { UPDATE_YYLLOC(); return OP_MINUS_ASSIGN; }
+"*="                { UPDATE_YYLLOC(); return OP_MUL_ASSIGN; }
+"/="                { UPDATE_YYLLOC(); return OP_DIV_ASSIGN; }
+"%="                { UPDATE_YYLLOC(); return OP_MOD_ASSIGN; }
 
-{INTEGER_LITERAL}           { printf("LIT_INT(%s)\n", yytext); }
-{REAL_LITERAL}              { printf("LIT_REAL(%s)\n", yytext); }
-{INTEGER_LITERAL}{DECIMAL_SUFIX} { printf("LIT_DECIMAL(%s)\n", yytext); }
-{REAL_LITERAL}{DECIMAL_SUFIX}   { printf("LIT_DECIMAL(%s)\n", yytext); }
-{STRING_LITERAL}            { printf("LIT_STRING(%s)\n", yytext); }
-{CHAR_LITERAL}              { printf("LIT_CHAR(%s)\n", yytext); }
-"null"                      { printf("LIT_NULL\n"); }
-"date"'{STRING_LITERAL}      { printf("LIT_DATE(%s)\n", yytext); }
-"hour"'{STRING_LITERAL}     { printf("LIT_TIME(%s)\n", yytext); }
+"<>"                { UPDATE_YYLLOC(); return OP_NE ; } 
+"<="                { UPDATE_YYLLOC(); return OP_LE ; }
+">="                { UPDATE_YYLLOC(); return OP_GE ; }
+"="                 { UPDATE_YYLLOC(); return OP_EQ ; }
+"<"                 { UPDATE_YYLLOC(); return OP_LT ; }
+">"                 { UPDATE_YYLLOC(); return OP_GT ; }
 
+"+"                 { UPDATE_YYLLOC(); return OP_PLUS; }
+"-"                 { UPDATE_YYLLOC(); return OP_MINUS; }
+"*"                 { UPDATE_YYLLOC(); return OP_MULTIPLY; }
+"/"                 { UPDATE_YYLLOC(); return OP_DIVIDE; }
+"div"               { UPDATE_YYLLOC(); return OP_INT_DIVIDE ; }
+"%"                 { UPDATE_YYLLOC(); return OP_MOD; }
 
-"Integer"           { printf("TYPE_INTEGER\n"); }
-"Real"              { printf("TYPE_REAL\n"); }
-"Decimal"           { printf("TYPE_DECIMAL\n"); }
-"Boolean"           { printf("TYPE_BOOLEAN\n"); }
-"Caractere"         { printf("TYPE_CHAR\n"); }
-"Texto"             { printf("TYPE_STRING\n"); }
-"data"              { printf("TYPE_DATE\n"); }
-"hora"              { printf("TYPE_TIME\n"); }
-"dict"              { printf("TYPE_DICT\n"); }
-"set"               { printf("TYPE_SET\n"); }
+"("                 { UPDATE_YYLLOC(); return L_PAREN; }
+")"                 { UPDATE_YYLLOC(); return R_PAREN; }
+"["                 { UPDATE_YYLLOC(); return L_BRACKET; }
+"]"                 { UPDATE_YYLLOC(); return R_BRACKET; }
+"{"                 { UPDATE_YYLLOC(); return L_BRACE; }
+"}"                 { UPDATE_YYLLOC(); return R_BRACE; }
+":"                 { UPDATE_YYLLOC(); return COLON; }
+";"                 { UPDATE_YYLLOC(); return SEMICOLON; }
+".."                { UPDATE_YYLLOC(); return OP_RANGE; }
+","                 { UPDATE_YYLLOC(); return COMMA; }
+"."                 { UPDATE_YYLLOC(); return DOT; }
 
+[0-9]+              { UPDATE_YYLLOC(); yylval.sValue = strdup(yytext); return LIT_INT; }
+[0-9]+"."[0-9]+     { UPDATE_YYLLOC(); yylval.sValue = strdup(yytext); return LIT_REAL; }
+[a-zA-Z_][a-zA-Z0-9_]* { UPDATE_YYLLOC(); yylval.sValue = strdup(yytext); return ID; }
+\"([^"\n\\]|\\.)*\" { UPDATE_YYLLOC(); yylval.sValue = strdup(yytext); return LIT_STRING; }
 
-":="                { printf("OP_ASSIGN\n"); }
-"+="                { printf("OP_PLUS_ASSIGN\n"); }
-"-="                { printf("OP_MINUS_ASSIGN\n"); }
-"*="                { printf("OP_MUL_ASSIGN\n"); }
-"/="                { printf("OP_DIV_ASSIGN\n"); }
-"%="                { printf("OP_MOD_ASSIGN\n"); }
-
-"="                 { printf("OP_EQ\n"); }
-"!>"                { printf("OP_NE\n"); } // Note: Este é um operador não padrão, verifique se a sintaxe pretendida é `<>` ou `!=`
-"<="                { printf("OP_LE\n"); }
-">="                { printf("OP_GE\n"); }
-"<"                 { printf("OP_LT\n"); }
-">"                 { printf("OP_GT\n"); }
-
-"+"                 { printf("OP_PLUS\n"); }
-"-"                 { printf("OP_MINUS\n"); }
-"*"                 { printf("OP_MULTIPLY\n"); }
-"/"                 { printf("OP_DIVIDE\n"); }
-"%"                 { printf("OP_MOD\n"); }
-
-"("                 { printf("L_PAREN\n"); }
-")"                 { printf("R_PAREN\n"); }
-"["                 { printf("L_BRACKET\n"); }
-"]"                 { printf("R_BRACKET\n"); }
-"{"                 { printf("L_BRACE\n"); }
-"}"                 { printf("R_BRACE\n"); }
-":"                 { printf("COLON\n"); }
-";"                 { printf("SEMICOLON\n"); }
-","                 { printf("COMMA\n"); }
-"."                 { printf("DOT\n"); }
-
-
-{IDENTIFIER}        { printf("ID(%s)\n", yytext); }
-
-
-.                   { fprintf(stderr, "Erro Lexico: Caractere invalido '%s' na linha %d\n", yytext, yylineno); }
-
-%%
-
-#ifndef yywrap
-    int yywrap (void) {return 1;}
-#endif
-
-int main(void)
-{
-    yylex();
-    return 0;
+\n {
+    current_line[current_pos] = '\0';
+    current_pos = 0;
+    current_column = 1;
 }
+
+[ \t\r]+   { current_column += yyleng; /* ignora espaços */ }
+
+"//".*              { /* ignora comentário de linha */ }
+"/*"([^*]|\n)*"*/"   { /* ignora comentário de bloco */ }
+
+. {
+    UPDATE_YYLLOC();
+    current_line[current_pos++] = yytext[0];
+    if (current_pos < sizeof(current_line) - 1)
+        current_line[current_pos] = '\0';
+    return yytext[0];
+}
+
+%%
+
